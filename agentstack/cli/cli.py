@@ -24,7 +24,7 @@ from agentstack.utils import get_package_path
 from agentstack.generation.files import ConfigFile
 from agentstack.generation.tool_generation import get_all_tools
 from agentstack import packaging, generation
-from agentstack.utils import open_json_file, term_color, is_snake_case
+from agentstack.utils import open_json_file, term_color, is_snake_case, verify_agentstack_project
 from agentstack.update import AGENTSTACK_PACKAGE
 
 PREFERRED_MODELS = [
@@ -454,3 +454,14 @@ def list_tools():
 
     print("\n\n✨ Add a tool with: agentstack tools add <tool_name>")
     print("   https://docs.agentstack.sh/tools/core")
+
+
+def serve_project():
+    verify_agentstack_project()
+
+    # TODO: only silence output conditionally - maybe a debug or verbose option
+    os.system("docker stop agentstack-local > /dev/null 2>&1")
+    os.system("docker rm agentstack-local > /dev/null 2>&1")
+    with importlib.resources.path('agentstack.deploy', 'Dockerfile') as path:
+        os.system(f"docker build -t agent-service -f {path} .")
+    os.system("docker run --name agentstack-local -p 6969:6969 agent-service")

@@ -2,7 +2,7 @@ import argparse
 import os
 import sys
 
-from agentstack.cli import init_project_builder, list_tools, configure_default_model
+from agentstack.cli import init_project_builder, list_tools, configure_default_model, serve_project
 from agentstack.telemetry import track_cli_command
 from agentstack.utils import get_version, get_framework
 import agentstack.generation as generation
@@ -83,7 +83,11 @@ def main():
     tools_remove_parser = tools_subparsers.add_parser("remove", aliases=["r"], help="Remove a tool")
     tools_remove_parser.add_argument("name", help="Name of the tool to remove")
 
+    # 'update' command
     update = subparsers.add_parser('update', aliases=['u'], help='Check for updates')
+
+    # 'deploy' command
+    serve_parser = subparsers.add_parser('serve', aliases=['s'], help='Serve your agent')
 
     # Parse arguments
     args = parser.parse_args()
@@ -131,6 +135,8 @@ def main():
             tools_parser.print_help()
     elif args.command in ['update', 'u']:
         pass  # Update check already done
+    if args.command in ['serve', 's']:
+        serve_project()
     else:
         parser.print_help()
 
